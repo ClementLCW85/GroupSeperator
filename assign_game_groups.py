@@ -9,18 +9,41 @@ from typing import Any
 
 
 GROUPS: list[dict[str, Any]] = [
-    {"id": 1, "name": "Love", "capacity": 19},
-    {"id": 2, "name": "Joy", "capacity": 19},
-    {"id": 3, "name": "Peace", "capacity": 19},
-    {"id": 4, "name": "Patience", "capacity": 19},
+    {"id": 1, "name": "Love", "capacity": 18},
+    {"id": 2, "name": "Joy", "capacity": 18},
+    {"id": 3, "name": "Peace", "capacity": 18},
+    {"id": 4, "name": "Patience", "capacity": 18},
     {"id": 5, "name": "Kindness", "capacity": 18},
     {"id": 6, "name": "Goodness", "capacity": 18},
-    {"id": 7, "name": "Faithfulness", "capacity": 18},
-    {"id": 8, "name": "Gentleness", "capacity": 18},
-    {"id": 9, "name": "Self-Control", "capacity": 18},
+    {"id": 7, "name": "Faithfulness", "capacity": 17},
+    {"id": 8, "name": "Gentleness", "capacity": 17},
+    {"id": 9, "name": "Self-Control", "capacity": 17},
 ]
 
 AGE_ORDER = ["Kid", "Teen", "Elderly", "Young Adult", "Adult"]
+
+GROUP_NAME_CHINESE = {
+    "Love": "仁爱",
+    "Joy": "喜乐",
+    "Peace": "平安",
+    "Patience": "忍耐",
+    "Kindness": "恩慈",
+    "Goodness": "良善",
+    "Faithfulness": "信实",
+    "Gentleness": "温柔",
+    "Self-Control": "节制",
+}
+
+GAME_MASTER_NAMES = {
+    "lee chee wei",
+    "davin lee",
+    "henry low",
+    "joel ling",
+    "eddie chook",
+    "jaleb low",
+    "josh ling",
+    "jeffry wong",
+}
 
 
 def build_argument_parser() -> argparse.ArgumentParser:
@@ -42,6 +65,15 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 def load_entries(path: Path) -> list[dict[str, Any]]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def is_game_master(entry: dict[str, Any]) -> bool:
+    return str(entry.get("name_english", "")).strip().lower() in GAME_MASTER_NAMES
+
+
+def format_group_name(name: str) -> str:
+    chinese_name = GROUP_NAME_CHINESE.get(name)
+    return f"{name} {chinese_name}" if chinese_name else name
 
 
 def choose_group(groups: list[dict[str, Any]], age_group: str) -> dict[str, Any]:
@@ -77,6 +109,18 @@ def assign_groups(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return groups
 
 
+def collect_game_masters(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    masters = [entry for entry in entries if is_game_master(entry)]
+    return [
+        {
+            **entry,
+            "game_master": True,
+            "game_master_label": "GM",
+        }
+        for entry in masters
+    ]
+
+
 def flatten_entries(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
     flattened: list[dict[str, Any]] = []
     for group in groups:
@@ -85,7 +129,7 @@ def flatten_entries(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 {
                     **member,
                     "game_event_group_id": group["id"],
-                    "game_event_group_name": group["name"],
+                    "game_event_group_name": format_group_name(group["name"]),
                     "game_event_group_leader_number": group["leader"]["number"] if group["leader"] else None,
                     "game_event_group_leader_name_english": group["leader"]["name_english"] if group["leader"] else "",
                     "game_event_group_leader_name_chinese": group["leader"]["name_chinese"] if group["leader"] else "",
@@ -100,7 +144,7 @@ def build_output(groups: list[dict[str, Any]]) -> dict[str, Any]:
         "groups": [
             {
                 "id": group["id"],
-                "name": group["name"],
+                "name": format_group_name(group["name"]),
                 "capacity": group["capacity"],
                 "member_count": len(group["members"]),
                 "leader_number": group["leader"]["number"] if group["leader"] else None,
@@ -111,6 +155,7 @@ def build_output(groups: list[dict[str, Any]]) -> dict[str, Any]:
             for group in groups
         ],
         "participants": flatten_entries(groups),
+        "game_masters": [],
     }
 
 
@@ -120,8 +165,11 @@ def main() -> int:
     output_path = Path(args.output)
 
     entries = load_entries(input_path)
-    groups = assign_groups(entries)
+    game_masters = collect_game_masters(entries)
+    remaining_entries = [entry for entry in entries if not is_game_master(entry)]
+    groups = assign_groups(remaining_entries)
     output = build_output(groups)
+    output["game_masters"] = game_masters
 
     output_path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return 0

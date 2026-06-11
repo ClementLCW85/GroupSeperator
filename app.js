@@ -25,10 +25,13 @@ const gameGroupChineseNames = {
   'Self-Control': '节制',
 };
 
+const noCellGroupLeaderValue = '__no_cell_group_leader__';
+
 const state = {
   entries: [],
   gameEventGroups: [],
   gameEventParticipants: [],
+  gameEventMasters: [],
   activeTab: 'game',
   rawJsonView: 'roster',
   adminUnlocked: false,
@@ -71,6 +74,10 @@ function formatGameGroupName(groupName) {
     return '';
   }
 
+  if (/\p{Script=Han}/u.test(trimmedName)) {
+    return trimmedName;
+  }
+
   const chineseName = gameGroupChineseNames[trimmedName];
   return chineseName ? `${trimmedName} ${chineseName}` : trimmedName;
 }
@@ -79,6 +86,7 @@ function cloneGameEventData(groups, participants) {
   return {
     groups: groups.map((group) => ({ ...group })),
     participants: participants.map((participant) => ({ ...participant })),
+    game_masters: state.gameEventMasters.map((master) => ({ ...master })),
   };
 }
 
@@ -142,8 +150,18 @@ function renderFilters() {
 }
 
 function renderGameLeaderFilter() {
-  const leaders = ['All', ...unique(state.gameEventParticipants.map((entry) => entry.small_group_leader))];
-  els.gameLeaderSearch.innerHTML = leaders.map((value) => `<option value="${value}">${value}</option>`).join('');
+  const leaders = [
+    { value: 'All', label: 'All' },
+    ...(state.gameEventParticipants.some((entry) => !entry.small_group_leader)
+      ? [{ value: noCellGroupLeaderValue, label: 'No cell group leader' }]
+      : []),
+    ...unique(state.gameEventParticipants.map((entry) => entry.small_group_leader)).map((value) => ({
+      value,
+      label: value,
+    })),
+  ];
+
+  els.gameLeaderSearch.innerHTML = leaders.map(({ value, label }) => `<option value="${value}">${label}</option>`).join('');
   els.gameLeaderSearch.value = state.gameLeaderSearch || 'All';
 }
 
@@ -235,6 +253,7 @@ function renderRawJson() {
     {
       groups: state.gameEventGroups,
       participants: state.gameEventParticipants,
+      game_masters: state.gameEventMasters,
     },
     null,
     2,
@@ -318,6 +337,7 @@ function exportAdminData() {
   downloadJson(gameEventDataUrl, {
     groups: state.gameEventGroups,
     participants: state.gameEventParticipants,
+    game_masters: state.gameEventMasters,
   });
 }
 
@@ -340,7 +360,12 @@ function gameMatches(entry) {
     return true;
   }
 
-  const leaderMatches = hasLeaderQuery && searchKey(searchableLeader).includes(searchKey(leaderQuery));
+  const leaderMatches = hasLeaderQuery
+    && (
+      leaderQuery === noCellGroupLeaderValue
+        ? !searchableLeader
+        : searchKey(searchableLeader).includes(searchKey(leaderQuery))
+    );
   const nameMatches = hasNameQuery && searchKey(searchableName).includes(searchKey(nameQuery));
 
   return leaderMatches || nameMatches;
@@ -349,14 +374,30 @@ function gameMatches(entry) {
 function renderGameStats(filtered) {
   const total = state.gameEventParticipants.length;
   const matchedGroups = new Set(filtered.map((entry) => entry.game_event_group_id)).size;
+  const groupCounts = new Map(state.gameEventGroups.map((group) => [String(group.id), 0]));
+
+  state.gameEventParticipants.forEach((participant) => {
+    const groupId = String(participant.game_event_group_id);
+    groupCounts.set(groupId, (groupCounts.get(groupId) ?? 0) + 1);
+  });
+
+  const availabilityChips = state.gameEventGroups
+    .slice()
+    .sort((left, right) => Number(left.id) - Number(right.id))
+    .map((group) => `<span class="stat">${group.id}. ${formatGameGroupName(group.name)}: ${groupCounts.get(String(group.id)) ?? 0}</span>`);
 
   els.gameStats.innerHTML = [
-    `Participants: ${total}`,
-    `Matched: ${filtered.length}`,
-    `Groups: ${matchedGroups}`,
-  ]
-    .map((text) => `<span class="stat">${text}</span>`)
-    .join('');
+    `<span class="stat">Participants: ${total}</span>`,
+    `<span class="stat">Matched: ${filtered.length}</span>`,
+    `<span class="stat">Groups: ${matchedGroups}</span>`,
+    `<details class="game-availability">
+      <summary>Group availability and placement note</summary>
+      <div class="game-availability-body">
+        <p>If you find a new unregistered person, prioritize the group with fewer people.</p>
+        <div class="game-availability-chips">${availabilityChips.join('')}</div>
+      </div>
+    </details>`,
+  ].join('');
 }
 
 function renderGameResults(filtered) {
@@ -442,6 +483,7 @@ async function main() {
     ...entry,
     small_group_leader: canonicalize(entry.small_group_leader, leaderNormalization),
   }));
+  state.gameEventMasters = (gameEventData.game_masters ?? []).map((entry) => ({ ...entry }));
 
   els.search = document.getElementById('search');
   els.genderFilter = document.getElementById('genderFilter');
