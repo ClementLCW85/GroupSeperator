@@ -344,10 +344,25 @@ function exportAdminData() {
 }
 
 function buildGameEventIndex() {
-  return state.gameEventParticipants.map((entry) => ({
+  const participants = state.gameEventParticipants.map((entry) => ({
     ...entry,
     small_group_leader: canonicalize(entry.small_group_leader, leaderNormalization),
+    is_game_master: false,
   }));
+
+  const gameMasters = state.gameEventMasters.map((entry) => ({
+    ...entry,
+    game_event_group_id: 'GM',
+    game_event_group_name: 'Game master',
+    game_event_group_leader_number: null,
+    game_event_group_leader_name_english: '',
+    game_event_group_leader_name_chinese: '',
+    game_event_group_is_leader: false,
+    is_game_master: true,
+    small_group_leader: '',
+  }));
+
+  return [...participants, ...gameMasters];
 }
 
 function gameMatches(entry) {
@@ -358,6 +373,15 @@ function gameMatches(entry) {
 
   const hasLeaderQuery = Boolean(leaderQuery) && leaderQuery !== 'all';
   const hasNameQuery = Boolean(nameQuery);
+
+  if (entry.is_game_master) {
+    if (hasNameQuery) {
+      return searchKey(searchableName).includes(searchKey(nameQuery));
+    }
+
+    return !hasLeaderQuery;
+  }
+
   if (!hasLeaderQuery && !hasNameQuery) {
     return true;
   }
@@ -374,7 +398,8 @@ function gameMatches(entry) {
 }
 
 function renderGameStats(filtered) {
-  const total = state.gameEventParticipants.length;
+  const participantTotal = state.gameEventParticipants.length;
+  const gameMasterTotal = state.gameEventMasters.length;
   const matchedGroups = new Set(filtered.map((entry) => entry.game_event_group_id)).size;
   const groupCounts = new Map(state.gameEventGroups.map((group) => [String(group.id), 0]));
 
@@ -389,7 +414,8 @@ function renderGameStats(filtered) {
     .map((group) => `<span class="stat">${group.id}. ${formatGameGroupName(group.name)}: ${groupCounts.get(String(group.id)) ?? 0}</span>`);
 
   els.gameStats.innerHTML = [
-    `<span class="stat">Participants: ${total}</span>`,
+    `<span class="stat">Participants: ${participantTotal}</span>`,
+    `<span class="stat">Game masters: ${gameMasterTotal}</span>`,
     `<span class="stat">Matched: ${filtered.length}</span>`,
     `<span class="stat">Groups: ${matchedGroups}</span>`,
     `<details class="game-availability">
@@ -411,20 +437,20 @@ function renderGameResults(filtered) {
   els.gameResults.innerHTML = filtered
     .map(
       (entry) => `
-        <article class="card game-card ${entry.game_event_group_is_leader ? 'is-leader' : ''}">
+        <article class="card game-card ${entry.is_game_master ? 'is-gm' : entry.game_event_group_is_leader ? 'is-leader' : ''}">
           <div class="card-top">
             <div>
               <h3 class="name-en">${entry.name_english || '&nbsp;'}</h3>
               <p class="name-cn">${entry.name_chinese || '&nbsp;'}</p>
             </div>
             <div class="card-marks">
-              <div class="badge">${entry.game_event_group_id}</div>
+              <div class="badge">${entry.is_game_master ? 'GM' : entry.game_event_group_id}</div>
               ${entry.game_event_group_is_leader ? '<div class="role-pill">Leader</div>' : ''}
             </div>
           </div>
           <div class="meta">
-            <div><strong>Game group:</strong> ${formatGameGroupName(entry.game_event_group_name)}</div>
-            <div><strong>Game leader:</strong> ${formatName(entry.game_event_group_leader_name_english, entry.game_event_group_leader_name_chinese) || entry.small_group_leader || ''}</div>
+            <div><strong>Game group:</strong> ${entry.is_game_master ? 'Game master' : formatGameGroupName(entry.game_event_group_name)}</div>
+            <div><strong>Game leader:</strong> ${entry.is_game_master ? 'N/A' : formatName(entry.game_event_group_leader_name_english, entry.game_event_group_leader_name_chinese) || entry.small_group_leader || ''}</div>
             <div><strong>Member:</strong> ${entry.name_english || entry.name_chinese || ''}</div>
             <div><strong>Age category:</strong> ${entry.gender_group || ''}</div>
           </div>
