@@ -197,7 +197,9 @@ function renderAdminControls() {
   els.adminLeaderSelect.innerHTML = selectedParticipants
     .map((participant) => {
       const isLeader = String(participant.number) === String(fallbackLeaderNumber);
-      const label = `${participant.number}. ${participant.name_english || participant.name_chinese || ''}${isLeader ? ' (current leader)' : ''}`;
+      const name = participant.name_english || participant.name_chinese || '';
+      const ageCategory = participant.gender_group ? ` (${participant.gender_group})` : '';
+      const label = `${participant.number}. ${name}${ageCategory}${isLeader ? ' (current leader)' : ''}`;
       return `<option value="${participant.number}">${label}</option>`;
     })
     .join('');
@@ -424,6 +426,7 @@ function renderGameResults(filtered) {
             <div><strong>Game group:</strong> ${formatGameGroupName(entry.game_event_group_name)}</div>
             <div><strong>Game leader:</strong> ${formatName(entry.game_event_group_leader_name_english, entry.game_event_group_leader_name_chinese) || entry.small_group_leader || ''}</div>
             <div><strong>Member:</strong> ${entry.name_english || entry.name_chinese || ''}</div>
+            <div><strong>Age category:</strong> ${entry.gender_group || ''}</div>
           </div>
         </article>
       `,

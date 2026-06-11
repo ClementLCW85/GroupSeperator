@@ -53,9 +53,9 @@
       "name": "Patience 忍耐",
       "capacity": 18,
       "member_count": 18,
-      "leader_number": 165,
-      "leader_name_english": "",
-      "leader_name_chinese": "劳妤爱",
+      "leader_number": 1,
+      "leader_name_english": "Vincent Tan",
+      "leader_name_chinese": "陈江杰",
       "age_group_breakdown": {
         "Kid": 1,
         "Teen": 1,
@@ -851,10 +851,10 @@
       "gender_group": "Kid",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
-      "game_event_group_is_leader": true
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
+      "game_event_group_is_leader": false
     },
     {
       "number": 148,
@@ -864,9 +864,9 @@
       "gender_group": "Teen",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -877,9 +877,9 @@
       "gender_group": "Elderly",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -890,9 +890,9 @@
       "gender_group": "Elderly",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -903,9 +903,9 @@
       "gender_group": "Elderly",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -916,9 +916,9 @@
       "gender_group": "Young Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -929,9 +929,9 @@
       "gender_group": "Young Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -942,9 +942,9 @@
       "gender_group": "Young Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -955,10 +955,10 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
-      "game_event_group_is_leader": false
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
+      "game_event_group_is_leader": true
     },
     {
       "number": 15,
@@ -968,9 +968,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -981,9 +981,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -994,9 +994,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -1007,9 +1007,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -1020,9 +1020,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -1033,9 +1033,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -1046,9 +1046,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -1059,9 +1059,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
@@ -1072,9 +1072,9 @@
       "gender_group": "Adult",
       "game_event_group_id": 4,
       "game_event_group_name": "Patience 忍耐",
-      "game_event_group_leader_number": 165,
-      "game_event_group_leader_name_english": "",
-      "game_event_group_leader_name_chinese": "劳妤爱",
+      "game_event_group_leader_number": 1,
+      "game_event_group_leader_name_english": "Vincent Tan",
+      "game_event_group_leader_name_chinese": "陈江杰",
       "game_event_group_is_leader": false
     },
     {
