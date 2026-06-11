@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Group roster explorer" />
+    <title>联合小组 2：一人一粽，同心同行</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">GitLab Pages</p>
+        <h1>联合小组 2：一人一粽，同心同行</h1>
+        <p class="lede">游戏分组查询。</p>
+      </section>
+
+      <section class="panel">
+        <div class="tabs" role="tablist" aria-label="Roster views">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="game-panel" id="game-tab">Game Event Lookup</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="roster-panel" id="roster-tab">Registration Form</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="admin-panel" id="admin-tab">Admin</button>
+        </div>
+
+        <div class="toolbar toolbar--main">
+          <label class="search">
+            <span>Search</span>
+            <input id="search" type="search" placeholder="Name, leader, or group" />
+          </label>
+
+          <label class="filter">
+            <span>Gender group</span>
+            <select id="genderFilter"></select>
+          </label>
+
+          <label class="filter">
+            <span>Cell group leader</span>
+            <select id="leaderFilter"></select>
+          </label>
+        </div>
+
+        <div id="roster-panel" class="tab-panel is-active" role="tabpanel" aria-labelledby="roster-tab">
+          <div class="stats" id="stats"></div>
+          <div id="cards" class="cards"></div>
+        </div>
+
+        <div id="game-panel" class="tab-panel" role="tabpanel" aria-labelledby="game-tab" hidden>
+          <div class="game-intro">
+            <h2>Find your game event group</h2>
+            <p>Search by cell group leader first. If needed, use the secondary search by your own name.</p>
+            <p class="game-note">The assigned game leader is highlighted in gold.</p>
+          </div>
+
+          <div class="toolbar toolbar--game">
+            <label class="filter">
+              <span>Cell group leader</span>
+              <select id="gameLeaderSearch"></select>
+            </label>
+
+            <label class="search">
+              <span>Your name</span>
+              <input id="gameNameSearch" type="search" placeholder="Search by your own name" />
+            </label>
+          </div>
+
+          <div class="stats" id="gameStats"></div>
+          <div id="gameResults" class="game-results"></div>
+        </div>
+
+        <div id="admin-panel" class="tab-panel" role="tabpanel" aria-labelledby="admin-tab" hidden>
+          <div id="admin-lock-panel" class="raw-lock">
+            <h2>Admin Locked</h2>
+            <p>Enter the password to manage leaders and view raw JSON.</p>
+            <div class="raw-lock-form">
+              <input id="adminPassword" type="password" inputmode="numeric" placeholder="Password" />
+              <button id="adminUnlockButton" type="button">Unlock</button>
+            </div>
+            <p id="adminLockMessage" class="raw-lock-message" aria-live="polite"></p>
+          </div>
+
+          <div id="admin-viewer-panel" hidden>
+            <div class="admin-grid">
+              <section class="admin-card">
+                <h2>Manage Game Leader</h2>
+                <p>Change the game group leader for a person, then export the updated registration JSON and game groups JSON.</p>
+
+                <div class="admin-form">
+                  <label class="filter">
+                    <span>Game group</span>
+                    <select id="adminGroupSelect"></select>
+                  </label>
+
+                  <label class="filter">
+                    <span>Game group leader</span>
+                    <select id="adminLeaderSelect"></select>
+                  </label>
+
+                  <div class="admin-actions">
+                    <button id="adminApplyButton" type="button">Apply Change</button>
+                    <button id="adminExportButton" type="button">Export Updated JSON</button>
+                  </div>
+
+                  <p id="adminStatus" class="admin-status" aria-live="polite"></p>
+                </div>
+              </section>
+
+              <section class="admin-card">
+                <h2>JSON Viewer</h2>
+                <div class="json-switcher" aria-label="JSON sources">
+                  <button class="json-switch is-active" type="button" aria-controls="roster-json-panel" id="roster-json-tab">Registration JSON</button>
+                  <button class="json-switch" type="button" aria-controls="game-json-panel" id="game-json-tab">Game Groups JSON</button>
+                </div>
+
+                <div id="roster-json-panel" class="json-panel is-active" role="tabpanel" aria-labelledby="roster-json-tab">
+                  <pre id="rawJson" class="raw-json"></pre>
+                </div>
+
+                <div id="game-json-panel" class="json-panel" role="tabpanel" aria-labelledby="game-json-tab" hidden>
+                  <pre id="gameRawJson" class="raw-json"></pre>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
