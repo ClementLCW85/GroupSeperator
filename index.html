@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Group roster explorer" />
     <title>联合小组 2：一人一粽，同心同行</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260612" />
     <script defer src="app.js"></script>
   </head>
   <body>
@@ -30,7 +30,7 @@
           </label>
 
           <label class="filter">
-            <span>Gender group</span>
+            <span>Age group</span>
             <select id="genderFilter"></select>
           </label>
 
@@ -83,7 +83,7 @@
             <div class="admin-grid">
               <section class="admin-card">
                 <h2>Manage Game Leader</h2>
-                <p>Change the game group leader for a person, then export the updated registration JSON and game groups JSON.</p>
+                <p>Reassign one leader, rebuild the game groups from the roster, or export the current JSON plus backup.</p>
 
                 <div class="admin-form">
                   <label class="filter">
@@ -97,8 +97,9 @@
                   </label>
 
                   <div class="admin-actions">
-                    <button id="adminApplyButton" type="button">Apply Change</button>
-                    <button id="adminExportButton" type="button">Export Updated JSON</button>
+                    <button id="adminApplyButton" type="button">Reassign Leader</button>
+                    <button id="adminRegroupButton" type="button">Rebuild &amp; Export</button>
+                    <button id="adminExportButton" type="button">Export Current JSON</button>
                   </div>
 
                   <p id="adminStatus" class="admin-status" aria-live="polite"></p>

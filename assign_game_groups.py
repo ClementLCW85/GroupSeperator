@@ -22,6 +22,18 @@ GROUPS: list[dict[str, Any]] = [
 
 AGE_ORDER = ["Kid", "Teen", "Elderly", "Young Adult", "Adult"]
 
+FRUITS = [
+    {"key": "strawberry", "label": "Strawberry"},
+    {"key": "watermelon", "label": "Watermelon"},
+    {"key": "mango", "label": "Mango"},
+    {"key": "pineapple", "label": "Pineapple"},
+    {"key": "kiwi", "label": "Kiwi"},
+    {"key": "grapes", "label": "Grapes"},
+    {"key": "cherries", "label": "Cherries"},
+    {"key": "orange", "label": "Orange"},
+    {"key": "dragon-fruit", "label": "Dragon fruit"},
+]
+
 GROUP_NAME_CHINESE = {
     "Love": "仁爱",
     "Joy": "喜乐",
@@ -76,11 +88,15 @@ def format_group_name(name: str) -> str:
     return f"{name} {chinese_name}" if chinese_name else name
 
 
+def build_fruit_asset_path(fruit_key: str) -> str:
+    return f"assets/fruits/{fruit_key}.svg"
+
+
 def choose_group(groups: list[dict[str, Any]], age_group: str) -> dict[str, Any]:
     candidates = [group for group in groups if len(group["members"]) < group["capacity"]]
     candidates.sort(
         key=lambda group: (
-            sum(1 for member in group["members"] if member["gender_group"] == age_group),
+            sum(1 for member in group["members"] if member["age_group"] == age_group),
             len(group["members"]),
             group["id"],
         )
@@ -90,7 +106,7 @@ def choose_group(groups: list[dict[str, Any]], age_group: str) -> dict[str, Any]
 
 def assign_groups(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups = [{**group, "members": []} for group in GROUPS]
-    entries_by_age = {age_group: [entry for entry in entries if entry["gender_group"] == age_group] for age_group in AGE_ORDER}
+    entries_by_age = {age_group: [entry for entry in entries if entry["age_group"] == age_group] for age_group in AGE_ORDER}
 
     for age_group in AGE_ORDER[:-1]:
         for entry in entries_by_age[age_group]:
@@ -140,6 +156,14 @@ def flatten_entries(groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def build_output(groups: list[dict[str, Any]]) -> dict[str, Any]:
+    fruit_order = FRUITS[:]
+    random.shuffle(fruit_order)
+
+    for group, fruit in zip(groups, fruit_order):
+        group["fruit_key"] = fruit["key"]
+        group["fruit_name"] = fruit["label"]
+        group["fruit_asset"] = build_fruit_asset_path(fruit["key"])
+
     return {
         "groups": [
             {
@@ -150,7 +174,10 @@ def build_output(groups: list[dict[str, Any]]) -> dict[str, Any]:
                 "leader_number": group["leader"]["number"] if group["leader"] else None,
                 "leader_name_english": group["leader"]["name_english"] if group["leader"] else "",
                 "leader_name_chinese": group["leader"]["name_chinese"] if group["leader"] else "",
-                "age_group_breakdown": dict(Counter(member["gender_group"] for member in group["members"])),
+                "fruit_key": group["fruit_key"],
+                "fruit_name": group["fruit_name"],
+                "fruit_asset": group["fruit_asset"],
+                "age_group_breakdown": dict(Counter(member["age_group"] for member in group["members"])),
             }
             for group in groups
         ],

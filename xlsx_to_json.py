@@ -24,7 +24,7 @@ LEADER_NORMALIZATION = {
     "丽环": "Lee Hwan",
 }
 
-GENDER_GROUP_NORMALIZATION = {
+AGE_GROUP_NORMALIZATION = {
     "young adult / teen": "Young Adult",
 }
 
@@ -111,7 +111,7 @@ def parse_workbook(path: Path) -> list[dict[str, Any]]:
             raw_name = cells.get("B", "")
             chinese_name, english_name = split_name(raw_name)
             small_group_leader = normalize_value(cells.get("C", ""), LEADER_NORMALIZATION)
-            gender_group = normalize_value(cells.get("D", ""), GENDER_GROUP_NORMALIZATION)
+            age_group = normalize_value(cells.get("D", ""), AGE_GROUP_NORMALIZATION)
 
             records.append(
                 {
@@ -119,7 +119,7 @@ def parse_workbook(path: Path) -> list[dict[str, Any]]:
                     "name_chinese": chinese_name,
                     "name_english": english_name,
                     "small_group_leader": small_group_leader,
-                    "gender_group": gender_group,
+                    "age_group": age_group,
                 }
             )
 

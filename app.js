@@ -1,5 +1,6 @@
-const dataUrl = '联合小组 2 - Full Name List (updated).json';
-const gameEventDataUrl = 'game_event_groups.json';
+const assetVersion = '20260612';
+const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
+const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
 
 const leaderNormalization = {
@@ -9,7 +10,7 @@ const leaderNormalization = {
   丽环: 'Lee Hwan',
 };
 
-const genderGroupNormalization = {
+const ageGroupNormalization = {
   'young adult / teen': 'Young Adult',
 };
 
@@ -24,6 +25,20 @@ const gameGroupChineseNames = {
   Gentleness: '温柔',
   'Self-Control': '节制',
 };
+
+const ageGroupOrder = ['Kid', 'Teen', 'Elderly', 'Young Adult', 'Adult'];
+
+const fruitCatalog = [
+  { key: 'strawberry', label: 'Strawberry' },
+  { key: 'watermelon', label: 'Watermelon' },
+  { key: 'mango', label: 'Mango' },
+  { key: 'pineapple', label: 'Pineapple' },
+  { key: 'kiwi', label: 'Kiwi' },
+  { key: 'grapes', label: 'Grapes' },
+  { key: 'cherries', label: 'Cherries' },
+  { key: 'orange', label: 'Orange' },
+  { key: 'dragon-fruit', label: 'Dragon fruit' },
+];
 
 const noCellGroupLeaderValue = '__no_cell_group_leader__';
 
@@ -82,6 +97,10 @@ function formatGameGroupName(groupName) {
   return chineseName ? `${trimmedName} ${chineseName}` : trimmedName;
 }
 
+function buildFruitAssetPath(fruitKey) {
+  return `assets/fruits/${fruitKey}.svg`;
+}
+
 function cloneGameEventData(groups, participants) {
   return {
     groups: groups.map((group) => ({ ...group })),
@@ -100,11 +119,166 @@ function downloadJson(filename, payload) {
   URL.revokeObjectURL(downloadUrl);
 }
 
+function shuffle(values) {
+  const items = values.slice();
+
+  for (let index = items.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
+  }
+
+  return items;
+}
+
+function createCountMap() {
+  return new Map();
+}
+
+function incrementCount(countMap, key) {
+  countMap.set(key, (countMap.get(key) ?? 0) + 1);
+}
+
+function getCount(countMap, key) {
+  return countMap.get(key) ?? 0;
+}
+
+function createGameGroupTemplates() {
+  return state.gameEventGroups.map((group) => ({
+    id: Number(group.id),
+    name: group.name,
+    capacity: Number(group.capacity) || 0,
+    members: [],
+    ageCounts: createCountMap(),
+    genderCounts: createCountMap(),
+  }));
+}
+
+function assignFruitMetadata(groups) {
+  const shuffledFruits = shuffle(fruitCatalog);
+
+  groups.forEach((group, index) => {
+    const fruit = shuffledFruits[index];
+    group.fruit_key = fruit.key;
+    group.fruit_name = fruit.label;
+    group.fruit_asset = buildFruitAssetPath(fruit.key);
+  });
+}
+
+function chooseBalancedGameGroup(groups, entry) {
+  const rankedGroups = groups
+    .filter((group) => group.members.length < group.capacity)
+    .map((group) => {
+      const sameAgeCount = getCount(group.ageCounts, entry.age_group);
+      const sameGenderCount = getCount(group.genderCounts, entry.gender);
+      const maleAfter = getCount(group.genderCounts, 'male') + (entry.gender === 'male' ? 1 : 0);
+      const femaleAfter = getCount(group.genderCounts, 'female') + (entry.gender === 'female' ? 1 : 0);
+
+      return {
+        group,
+        score: [
+          group.members.length,
+          sameAgeCount,
+          sameGenderCount,
+          Math.abs(maleAfter - femaleAfter),
+          Math.random(),
+        ],
+      };
+    });
+
+  rankedGroups.sort((left, right) => {
+    for (let index = 0; index < left.score.length; index += 1) {
+      if (left.score[index] < right.score[index]) {
+        return -1;
+      }
+
+      if (left.score[index] > right.score[index]) {
+        return 1;
+      }
+    }
+
+    return 0;
+  });
+
+  return rankedGroups[0]?.group ?? null;
+}
+
+function buildRebalancedGameEventData() {
+  const gameMasterNumbers = new Set(state.gameEventMasters.map((master) => String(master.number)));
+  const participants = state.entries.filter((entry) => !gameMasterNumbers.has(String(entry.number)));
+  const groups = createGameGroupTemplates();
+
+  ageGroupOrder.forEach((ageGroup) => {
+    shuffle(participants.filter((entry) => entry.age_group === ageGroup)).forEach((entry) => {
+      const selectedGroup = chooseBalancedGameGroup(groups, entry);
+
+      if (!selectedGroup) {
+        throw new Error('Unable to place every participant into a game group.');
+      }
+
+      selectedGroup.members.push(entry);
+      incrementCount(selectedGroup.ageCounts, entry.age_group);
+      incrementCount(selectedGroup.genderCounts, entry.gender);
+    });
+  });
+
+  groups.forEach((group) => {
+    if (!group.members.length) {
+      group.leader = null;
+      return;
+    }
+
+    const leaderCandidates = group.members.filter((member) => member.age_group !== 'Kid');
+
+    if (!leaderCandidates.length) {
+      throw new Error(`Game group ${group.id} does not have a non-kid leader candidate.`);
+    }
+
+    group.leader = leaderCandidates[Math.floor(Math.random() * leaderCandidates.length)];
+  });
+
+  assignFruitMetadata(groups);
+
+  return {
+    groups: groups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      capacity: group.capacity,
+      member_count: group.members.length,
+      leader_number: group.leader ? group.leader.number : null,
+      leader_name_english: group.leader ? group.leader.name_english : '',
+      leader_name_chinese: group.leader ? group.leader.name_chinese : '',
+      fruit_key: group.fruit_key,
+      fruit_name: group.fruit_name,
+      fruit_asset: group.fruit_asset,
+      age_group_breakdown: Object.fromEntries(
+        ageGroupOrder
+          .map((ageGroup) => [ageGroup, getCount(group.ageCounts, ageGroup)])
+          .filter(([, count]) => count > 0),
+      ),
+    })),
+    participants: groups.flatMap((group) =>
+      group.members.map((member) => ({
+        ...member,
+        game_event_group_id: group.id,
+        game_event_group_name: formatGameGroupName(group.name),
+        game_event_group_leader_number: group.leader ? group.leader.number : null,
+        game_event_group_leader_name_english: group.leader ? group.leader.name_english : '',
+        game_event_group_leader_name_chinese: group.leader ? group.leader.name_chinese : '',
+        game_event_group_fruit_key: group.fruit_key,
+        game_event_group_fruit_name: group.fruit_name,
+        game_event_group_fruit_asset: group.fruit_asset,
+        game_event_group_is_leader: Boolean(group.leader && member.number === group.leader.number),
+      })),
+    ),
+    game_masters: state.gameEventMasters.map((master) => ({ ...master })),
+  };
+}
+
 function normalizeRosterEntry(entry) {
   return {
     ...entry,
     small_group_leader: canonicalize(entry.small_group_leader, leaderNormalization),
-    gender_group: canonicalize(entry.gender_group, genderGroupNormalization),
+    age_group: canonicalize(entry.age_group, ageGroupNormalization),
   };
 }
 
@@ -126,20 +300,20 @@ function matches(entry) {
     entry.name_chinese,
     entry.name_english,
     entry.small_group_leader,
-    entry.gender_group,
+    entry.age_group,
   ]
     .map(searchKey)
     .join(' ');
 
   const searchOk = !state.search || haystack.includes(searchKey(state.search));
-  const genderOk = state.gender === 'All' || searchKey(entry.gender_group) === searchKey(state.gender);
+  const genderOk = state.gender === 'All' || searchKey(entry.age_group) === searchKey(state.gender);
   const leaderOk = state.leader === 'All' || searchKey(entry.small_group_leader) === searchKey(state.leader);
 
   return searchOk && genderOk && leaderOk;
 }
 
 function renderFilters() {
-  const genders = ['All', ...unique(state.entries.map((entry) => entry.gender_group))];
+  const genders = ['All', ...unique(state.entries.map((entry) => entry.age_group))];
   const leaders = ['All', ...unique(state.entries.map((entry) => entry.small_group_leader))];
 
   els.genderFilter.innerHTML = genders.map((value) => `<option value="${value}">${value}</option>`).join('');
@@ -198,7 +372,7 @@ function renderAdminControls() {
     .map((participant) => {
       const isLeader = String(participant.number) === String(fallbackLeaderNumber);
       const name = participant.name_english || participant.name_chinese || '';
-      const ageCategory = participant.gender_group ? ` (${participant.gender_group})` : '';
+      const ageCategory = participant.age_group ? ` (${participant.age_group})` : '';
       const label = `${participant.number}. ${name}${ageCategory}${isLeader ? ' (current leader)' : ''}`;
       return `<option value="${participant.number}">${label}</option>`;
     })
@@ -210,13 +384,13 @@ function renderAdminControls() {
 function renderStats(filtered) {
   const total = state.entries.length;
   const leaders = new Set(filtered.map((entry) => entry.small_group_leader).filter(Boolean)).size;
-  const genders = new Set(filtered.map((entry) => entry.gender_group).filter(Boolean)).size;
+  const genders = new Set(filtered.map((entry) => entry.age_group).filter(Boolean)).size;
 
   els.stats.innerHTML = [
     `Total: ${total}`,
     `Showing: ${filtered.length}`,
     `Leaders: ${leaders}`,
-    `Gender groups: ${genders}`,
+    `Age groups: ${genders}`,
   ]
     .map((text) => `<span class="stat">${text}</span>`)
     .join('');
@@ -241,7 +415,8 @@ function renderCards(filtered) {
           </div>
           <div class="meta">
             <div><strong>Cell group leader:</strong> ${entry.small_group_leader || ''}</div>
-            <div><strong>Gender group:</strong> ${entry.gender_group || ''}</div>
+            <div><strong>Age group:</strong> ${entry.age_group || ''}</div>
+            <div><strong>Gender:</strong> ${entry.gender || ''}</div>
           </div>
         </article>
       `,
@@ -343,11 +518,27 @@ function exportAdminData() {
   });
 }
 
+function regroupAndExportGameGroups() {
+  state.gameEventBackup = cloneGameEventData(state.gameEventGroups, state.gameEventParticipants);
+  const regrouped = buildRebalancedGameEventData();
+  state.gameEventGroups = regrouped.groups;
+  state.gameEventParticipants = regrouped.participants;
+  state.gameEventMasters = regrouped.game_masters;
+  exportAdminData();
+}
+
 function buildGameEventIndex() {
   const participants = state.gameEventParticipants.map((entry) => ({
     ...entry,
     small_group_leader: canonicalize(entry.small_group_leader, leaderNormalization),
     is_game_master: false,
+    ...(getGroupById(entry.game_event_group_id)
+      ? {
+          game_event_group_fruit_key: getGroupById(entry.game_event_group_id).fruit_key || '',
+          game_event_group_fruit_name: getGroupById(entry.game_event_group_id).fruit_name || '',
+          game_event_group_fruit_asset: getGroupById(entry.game_event_group_id).fruit_asset || '',
+        }
+      : {}),
   }));
 
   const gameMasters = state.gameEventMasters.map((entry) => ({
@@ -444,7 +635,10 @@ function renderGameResults(filtered) {
               <p class="name-cn">${entry.name_chinese || '&nbsp;'}</p>
             </div>
             <div class="card-marks">
-              <div class="badge">${entry.is_game_master ? 'GM' : entry.game_event_group_id}</div>
+              <div class="group-mark">
+                ${entry.is_game_master || !entry.game_event_group_fruit_asset ? '' : `<span class="fruit-tile" style="--fruit-image: url('${entry.game_event_group_fruit_asset}')" aria-hidden="true"></span>`}
+                <div class="badge">${entry.is_game_master ? 'GM' : entry.game_event_group_id}</div>
+              </div>
               ${entry.game_event_group_is_leader ? '<div class="role-pill">Leader</div>' : ''}
             </div>
           </div>
@@ -452,7 +646,8 @@ function renderGameResults(filtered) {
             <div><strong>Game group:</strong> ${entry.is_game_master ? 'Game master' : formatGameGroupName(entry.game_event_group_name)}</div>
             <div><strong>Game leader:</strong> ${entry.is_game_master ? 'N/A' : formatName(entry.game_event_group_leader_name_english, entry.game_event_group_leader_name_chinese) || entry.small_group_leader || ''}</div>
             <div><strong>Member:</strong> ${entry.name_english || entry.name_chinese || ''}</div>
-            <div><strong>Age category:</strong> ${entry.gender_group || ''}</div>
+            <div><strong>Age group:</strong> ${entry.age_group || ''}</div>
+            <div><strong>Gender:</strong> ${entry.gender || ''}</div>
           </div>
         </article>
       `,
@@ -539,6 +734,7 @@ async function main() {
   els.adminGroupSelect = document.getElementById('adminGroupSelect');
   els.adminLeaderSelect = document.getElementById('adminLeaderSelect');
   els.adminApplyButton = document.getElementById('adminApplyButton');
+  els.adminRegroupButton = document.getElementById('adminRegroupButton');
   els.adminExportButton = document.getElementById('adminExportButton');
   els.adminStatus = document.getElementById('adminStatus');
   els.gameLeaderSearch = document.getElementById('gameLeaderSearch');
@@ -614,26 +810,43 @@ async function main() {
     }
   });
 
-  els.adminApplyButton.addEventListener('click', () => {
-    try {
-      updateGameGroupLeader(els.adminGroupSelect.value, els.adminLeaderSelect.value);
-      renderAdminControls();
-      render();
-      exportAdminData();
-      els.adminStatus.textContent = 'Leader updated. Downloaded the updated JSON and a backup copy.';
-    } catch (error) {
-      els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to update leader.';
-    }
-  });
+  if (els.adminApplyButton) {
+    els.adminApplyButton.addEventListener('click', () => {
+      try {
+        updateGameGroupLeader(els.adminGroupSelect.value, els.adminLeaderSelect.value);
+        renderAdminControls();
+        render();
+        exportAdminData();
+        els.adminStatus.textContent = 'Leader updated. Downloaded the updated JSON and a backup copy.';
+      } catch (error) {
+        els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to update leader.';
+      }
+    });
+  }
 
-  els.adminExportButton.addEventListener('click', () => {
-    try {
-      exportAdminData();
-      els.adminStatus.textContent = 'Downloaded the updated JSON and a backup copy.';
-    } catch (error) {
-      els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to export JSON.';
-    }
-  });
+  if (els.adminRegroupButton) {
+    els.adminRegroupButton.addEventListener('click', () => {
+      try {
+        regroupAndExportGameGroups();
+        renderAdminControls();
+        render();
+        els.adminStatus.textContent = 'Game groups rebuilt. Downloaded the updated JSON and a backup copy.';
+      } catch (error) {
+        els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to rebuild game groups.';
+      }
+    });
+  }
+
+  if (els.adminExportButton) {
+    els.adminExportButton.addEventListener('click', () => {
+      try {
+        exportAdminData();
+        els.adminStatus.textContent = 'Downloaded the updated JSON and a backup copy.';
+      } catch (error) {
+        els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to export JSON.';
+      }
+    });
+  }
 
   renderAdminControls();
 }

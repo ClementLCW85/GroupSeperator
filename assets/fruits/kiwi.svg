@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" role="img" aria-label="Kiwi">
+  <rect width="50" height="50" rx="10" fill="none"/>
+  <circle cx="25" cy="25" r="16" fill="#8b5e34"/>
+  <circle cx="25" cy="25" r="11.5" fill="#76c83b"/>
+  <circle cx="25" cy="25" r="4.2" fill="#fef08a"/>
+  <g fill="#2f1b0f">
+    <circle cx="25" cy="16.2" r="0.9"/>
+    <circle cx="29.8" cy="17.4" r="0.9"/>
+    <circle cx="33.1" cy="21.2" r="0.9"/>
+    <circle cx="34.2" cy="25" r="0.9"/>
+    <circle cx="33.1" cy="28.8" r="0.9"/>
+    <circle cx="29.8" cy="32.6" r="0.9"/>
+    <circle cx="25" cy="33.8" r="0.9"/>
+    <circle cx="20.2" cy="32.6" r="0.9"/>
+    <circle cx="16.9" cy="28.8" r="0.9"/>
+    <circle cx="15.8" cy="25" r="0.9"/>
+    <circle cx="16.9" cy="21.2" r="0.9"/>
+    <circle cx="20.2" cy="17.4" r="0.9"/>
+  </g>
+</svg>

@@ -401,6 +401,28 @@ select:focus {
   gap: 8px;
 }
 
+.group-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 0;
+}
+
+.fruit-tile {
+  width: 42px;
+  height: 42px;
+  display: block;
+  flex: 0 0 42px;
+  border-radius: 12px;
+  background-color: rgba(15, 118, 110, 0.08);
+  background-image: var(--fruit-image);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 88% 88%;
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.16);
+}
+
 .role-pill {
   display: inline-flex;
   align-items: center;
@@ -425,7 +447,12 @@ select:focus {
 }
 
 .game-card .badge {
-  min-width: 48px;
+  min-width: 42px;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .admin-card .json-switcher {
