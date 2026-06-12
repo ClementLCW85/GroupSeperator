@@ -1,4 +1,3 @@
-import contextlib
 import http.server
 import socketserver
 import threading
@@ -10,10 +9,48 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--remote-browser",
+        action="store",
+        default=None,
+        help="CDP URL of an already running Chromium browser (e.g. http://localhost:9222)",
+    )
+
+
 @pytest.fixture(scope="session")
-def base_url():
-    """Start a local static server and return its URL."""
-    port = 8123
+def browser(browser_type, request):
+    """Launch a browser or connect to an existing remote Chromium instance."""
+    remote_url = request.config.getoption("--remote-browser")
+    headed = request.config.getoption("--headed")
+    slow_mo = request.config.getoption("--slowmo")
+
+    if remote_url:
+        browser = browser_type.connect_over_cdp(remote_url)
+        yield browser
+        # Keep the remote browser alive for manual testing.
+        return
+
+    browser = browser_type.launch(
+        headless=not headed,
+        slow_mo=slow_mo,
+    )
+    yield browser
+    browser.close()
+
+
+DEV_SERVER_PORT = 8123
+TEST_SERVER_PORT = 8124
+
+
+@pytest.fixture(scope="session")
+def base_url(request):
+    """Return the URL for the dev server or start a temporary test server."""
+    remote_url = request.config.getoption("--remote-browser")
+    if remote_url:
+        # Reuse the dev server started by dev_server_browser.py.
+        yield f"http://127.0.0.1:{DEV_SERVER_PORT}"
+        return
 
     class Handler(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
@@ -22,10 +59,10 @@ def base_url():
         def log_message(self, format, *args):
             pass
 
-    with socketserver.TCPServer(("127.0.0.1", port), Handler) as httpd:
+    with socketserver.TCPServer(("127.0.0.1", TEST_SERVER_PORT), Handler) as httpd:
         server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         server_thread.start()
-        yield f"http://127.0.0.1:{port}"
+        yield f"http://127.0.0.1:{TEST_SERVER_PORT}"
         httpd.shutdown()
 
 
