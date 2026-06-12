@@ -1,4 +1,4 @@
-const assetVersion = '202606121602';
+const assetVersion = '202606121612';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -573,6 +573,8 @@ function downloadPdf(filename, title, htmlContent) {
           th, td { padding: 6px 8px; border: 1px solid #d1d5db; text-align: left; vertical-align: top; }
           th { background: #f3f4f6; font-weight: 600; }
           tr:nth-child(even) { background: #f9fafb; }
+          tr { page-break-inside: avoid; break-inside: avoid; }
+          thead { display: table-header-group; }
         </style>
       </head>
       <body>
@@ -590,6 +592,7 @@ function downloadPdf(filename, title, htmlContent) {
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+    pagebreak: { mode: ['css', 'legacy'] },
   };
 
   return html2pdf()
