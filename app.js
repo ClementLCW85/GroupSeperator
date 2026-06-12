@@ -1,4 +1,4 @@
-const assetVersion = '202606121138';
+const assetVersion = '202606121526';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -144,11 +144,25 @@ function createGameGroupTemplates() {
   }));
 }
 
-function assignFruitMetadata(groups) {
-  const shuffledFruits = shuffle(fruitCatalog);
+const fruitKeyByGroupId = {
+  1: 'dragon-fruit',
+  2: 'orange',
+  3: 'cherries',
+  4: 'dragon-fruit',
+  5: 'kiwi',
+  6: 'pineapple',
+  7: 'mango',
+  8: 'watermelon',
+  9: 'strawberry',
+};
 
-  groups.forEach((group, index) => {
-    const fruit = shuffledFruits[index];
+function assignFruitMetadata(groups) {
+  groups.forEach((group) => {
+    const fruitKey = fruitKeyByGroupId[Number(group.id)];
+    const fruit = fruitCatalog.find((item) => item.key === fruitKey);
+    if (!fruit) {
+      return;
+    }
     group.fruit_key = fruit.key;
     group.fruit_name = fruit.label;
     group.fruit_asset = buildFruitAssetPath(fruit.key);
