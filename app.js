@@ -1,4 +1,4 @@
-const assetVersion = '202606121526';
+const assetVersion = '202606121534';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -145,7 +145,7 @@ function createGameGroupTemplates() {
 }
 
 const fruitKeyByGroupId = {
-  1: 'dragon-fruit',
+  1: 'grapes',
   2: 'orange',
   3: 'cherries',
   4: 'dragon-fruit',
