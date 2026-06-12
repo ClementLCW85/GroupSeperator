@@ -1,4 +1,4 @@
-const assetVersion = '202606121617';
+const assetVersion = '202606121622';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -552,13 +552,13 @@ function buildPdfTable(headers, rows) {
 
   return `
     <style>
-      .pdf-table { width: 100%; border: 1px solid #d1d5db; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10px; }
-      .pdf-row { display: flex; width: 100%; border-bottom: 1px solid #d1d5db; page-break-inside: avoid; break-inside: avoid; }
+      .pdf-table { width: 100%; border: 1px solid #9ca3af; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10px; background: #ffffff; }
+      .pdf-row { display: flex; width: 100%; border-bottom: 1px solid #9ca3af; page-break-inside: avoid; break-inside: avoid; background: #ffffff; }
       .pdf-row:last-child { border-bottom: none; }
-      .pdf-header { display: flex; width: 100%; background: #f3f4f6; font-weight: 600; border-bottom: 1px solid #d1d5db; }
-      .cell { padding: 5px 6px; box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; border-right: 1px solid #e5e7eb; }
+      .pdf-header { display: flex; width: 100%; background: #ffffff; font-weight: 600; border-bottom: 1px solid #9ca3af; }
+      .cell { padding: 5px 6px; box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; border-right: 1px solid #d1d5db; background: #ffffff; }
       .cell:last-child { border-right: none; }
-      .header-cell { background: #f3f4f6; }
+      .header-cell { background: #ffffff; }
       ${columnStyles}
     </style>
     <div class="pdf-table">
