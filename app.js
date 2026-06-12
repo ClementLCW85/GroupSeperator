@@ -1,4 +1,4 @@
-const assetVersion = '202606121558';
+const assetVersion = '202606121602';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -550,36 +550,62 @@ function buildPdfTable(headers, rows) {
 }
 
 function downloadPdf(filename, title, htmlContent) {
-  const container = document.createElement('div');
-  container.innerHTML = `
-    <div style="padding: 24px; color: #111827;">
-      <h1 style="font-size: 18px; margin-bottom: 16px;">${escapeHtml(title)}</h1>
-      <p style="font-size: 12px; color: #6b7280; margin-bottom: 16px;">Generated: ${new Date().toLocaleString()}</p>
-      ${htmlContent}
-    </div>
-  `;
-  container.style.position = 'fixed';
-  container.style.left = '-9999px';
-  container.style.top = '0';
-  document.body.appendChild(container);
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.left = '-9999px';
+  iframe.style.top = '0';
+  iframe.style.width = '297mm';
+  iframe.style.height = '210mm';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          body { margin: 0; padding: 24px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; background: #ffffff; }
+          h1 { font-size: 18px; margin-bottom: 16px; }
+          p.meta { font-size: 12px; color: #6b7280; margin-bottom: 16px; }
+          table { width: 100%; border-collapse: collapse; font-size: 11px; }
+          th, td { padding: 6px 8px; border: 1px solid #d1d5db; text-align: left; vertical-align: top; }
+          th { background: #f3f4f6; font-weight: 600; }
+          tr:nth-child(even) { background: #f9fafb; }
+        </style>
+      </head>
+      <body>
+        <h1>${escapeHtml(title)}</h1>
+        <p class="meta">Generated: ${new Date().toLocaleString()}</p>
+        ${htmlContent}
+      </body>
+    </html>
+  `);
+  doc.close();
 
   const options = {
-    margin: [10, 10],
+    margin: 10,
     filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
   };
 
-  html2pdf()
+  return html2pdf()
     .set(options)
-    .from(container)
+    .from(doc.body)
     .save()
     .then(() => {
-      document.body.removeChild(container);
+      if (iframe.parentNode) {
+        document.body.removeChild(iframe);
+      }
     })
-    .catch(() => {
-      document.body.removeChild(container);
+    .catch((error) => {
+      if (iframe.parentNode) {
+        document.body.removeChild(iframe);
+      }
+      throw error;
     });
 }
 
@@ -950,7 +976,7 @@ async function main() {
     els.adminDownloadRosterPdf.addEventListener('click', () => {
       try {
         downloadRosterPdf();
-        els.adminStatus.textContent = 'Preparing registration form PDF...';
+        els.adminStatus.textContent = 'Registration form PDF download started.';
       } catch (error) {
         els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to download PDF.';
       }
@@ -961,7 +987,7 @@ async function main() {
     els.adminDownloadGamePdf.addEventListener('click', () => {
       try {
         downloadGameEventPdf();
-        els.adminStatus.textContent = 'Preparing game event lookup PDF...';
+        els.adminStatus.textContent = 'Game event lookup PDF download started.';
       } catch (error) {
         els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to download PDF.';
       }
