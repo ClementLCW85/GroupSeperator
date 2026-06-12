@@ -1,4 +1,4 @@
-const assetVersion = '202606121105';
+const assetVersion = '202606121138';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -97,7 +97,7 @@ function formatGameGroupName(groupName) {
 }
 
 function buildFruitAssetPath(fruitKey) {
-  return `assets/fruits/${fruitKey}.svg`;
+  return `assets/fruits/${fruitKey}.png`;
 }
 
 function downloadJson(filename, payload) {
