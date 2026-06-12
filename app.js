@@ -52,7 +52,6 @@ const state = {
   adminUnlocked: false,
   adminGroupId: '',
   adminLeaderNumber: '',
-  gameEventBackup: null,
   search: '',
   gender: 'All',
   leader: 'All',
@@ -99,14 +98,6 @@ function formatGameGroupName(groupName) {
 
 function buildFruitAssetPath(fruitKey) {
   return `assets/fruits/${fruitKey}.svg`;
-}
-
-function cloneGameEventData(groups, participants) {
-  return {
-    groups: groups.map((group) => ({ ...group })),
-    participants: participants.map((participant) => ({ ...participant })),
-    game_masters: state.gameEventMasters.map((master) => ({ ...master })),
-  };
 }
 
 function downloadJson(filename, payload) {
@@ -476,8 +467,6 @@ function updateGameGroupLeader(groupId, leaderNumber) {
     throw new Error('This person is already the leader of another game group.');
   }
 
-  state.gameEventBackup = cloneGameEventData(state.gameEventGroups, state.gameEventParticipants);
-
   state.gameEventGroups = state.gameEventGroups.map((groupItem) => {
     if (Number(groupItem.id) !== numericGroupId) {
       return groupItem;
@@ -506,25 +495,19 @@ function updateGameGroupLeader(groupId, leaderNumber) {
   });
 }
 
-function exportAdminData() {
-  if (state.gameEventBackup) {
-    downloadJson('game_event_groups.before-update.json', state.gameEventBackup);
-  }
-
-  downloadJson(gameEventDataUrl, {
+function exportCurrentGameEventData() {
+  downloadJson('game_event_groups.json', {
     groups: state.gameEventGroups,
     participants: state.gameEventParticipants,
     game_masters: state.gameEventMasters,
   });
 }
 
-function regroupAndExportGameGroups() {
-  state.gameEventBackup = cloneGameEventData(state.gameEventGroups, state.gameEventParticipants);
+function regroupGameGroups() {
   const regrouped = buildRebalancedGameEventData();
   state.gameEventGroups = regrouped.groups;
   state.gameEventParticipants = regrouped.participants;
   state.gameEventMasters = regrouped.game_masters;
-  exportAdminData();
 }
 
 function buildGameEventIndex() {
@@ -816,8 +799,7 @@ async function main() {
         updateGameGroupLeader(els.adminGroupSelect.value, els.adminLeaderSelect.value);
         renderAdminControls();
         render();
-        exportAdminData();
-        els.adminStatus.textContent = 'Leader updated. Downloaded the updated JSON and a backup copy.';
+        els.adminStatus.textContent = 'Leader updated.';
       } catch (error) {
         els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to update leader.';
       }
@@ -827,10 +809,10 @@ async function main() {
   if (els.adminRegroupButton) {
     els.adminRegroupButton.addEventListener('click', () => {
       try {
-        regroupAndExportGameGroups();
+        regroupGameGroups();
         renderAdminControls();
         render();
-        els.adminStatus.textContent = 'Game groups rebuilt. Downloaded the updated JSON and a backup copy.';
+        els.adminStatus.textContent = 'Game groups rebuilt.';
       } catch (error) {
         els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to rebuild game groups.';
       }
@@ -840,8 +822,8 @@ async function main() {
   if (els.adminExportButton) {
     els.adminExportButton.addEventListener('click', () => {
       try {
-        exportAdminData();
-        els.adminStatus.textContent = 'Downloaded the updated JSON and a backup copy.';
+        exportCurrentGameEventData();
+        els.adminStatus.textContent = 'Downloaded game_event_groups.json.';
       } catch (error) {
         els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to export JSON.';
       }
