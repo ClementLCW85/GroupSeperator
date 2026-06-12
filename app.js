@@ -1,4 +1,4 @@
-const assetVersion = '202606121539';
+const assetVersion = '202606121558';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -517,6 +517,105 @@ function exportCurrentGameEventData() {
   });
 }
 
+function escapeHtml(value) {
+  const text = String(value ?? '');
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildPdfTable(headers, rows) {
+  const headerCells = headers.map((header) => `<th style="padding: 8px; border: 1px solid #ccc; background: #f3f4f6; text-align: left;">${escapeHtml(header)}</th>`).join('');
+  const bodyRows = rows
+    .map(
+      (row) => `
+        <tr>
+          ${row.map((cell) => `<td style="padding: 8px; border: 1px solid #ccc;">${escapeHtml(cell)}</td>`).join('')}
+        </tr>
+      `,
+    )
+    .join('');
+
+  return `
+    <table style="width: 100%; border-collapse: collapse; font-family: system-ui, -apple-system, sans-serif; font-size: 12px;">
+      <thead>
+        <tr>${headerCells}</tr>
+      </thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+  `;
+}
+
+function downloadPdf(filename, title, htmlContent) {
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <div style="padding: 24px; color: #111827;">
+      <h1 style="font-size: 18px; margin-bottom: 16px;">${escapeHtml(title)}</h1>
+      <p style="font-size: 12px; color: #6b7280; margin-bottom: 16px;">Generated: ${new Date().toLocaleString()}</p>
+      ${htmlContent}
+    </div>
+  `;
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  document.body.appendChild(container);
+
+  const options = {
+    margin: [10, 10],
+    filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+  };
+
+  html2pdf()
+    .set(options)
+    .from(container)
+    .save()
+    .then(() => {
+      document.body.removeChild(container);
+    })
+    .catch(() => {
+      document.body.removeChild(container);
+    });
+}
+
+function downloadRosterPdf() {
+  const headers = ['No.', 'English Name', 'Chinese Name', 'Cell Group Leader', 'Age Group', 'Gender'];
+  const rows = state.entries.map((entry) => [
+    entry.number,
+    entry.name_english,
+    entry.name_chinese,
+    entry.small_group_leader,
+    entry.age_group,
+    entry.gender,
+  ]);
+
+  downloadPdf('registration-form.pdf', 'Registration Form', buildPdfTable(headers, rows));
+}
+
+function downloadGameEventPdf() {
+  const headers = ['No.', 'English Name', 'Chinese Name', 'Cell Group Leader', 'Age Group', 'Gender', 'Game Group', 'Game Leader', 'Fruit'];
+  const rows = buildGameEventIndex().map((entry) => [
+    entry.number,
+    entry.name_english,
+    entry.name_chinese,
+    entry.small_group_leader,
+    entry.age_group,
+    entry.gender,
+    entry.is_game_master ? 'Game master' : formatGameGroupName(entry.game_event_group_name),
+    entry.is_game_master
+      ? 'N/A'
+      : formatName(entry.game_event_group_leader_name_english, entry.game_event_group_leader_name_chinese) || entry.small_group_leader || '',
+    entry.is_game_master ? 'N/A' : entry.game_event_group_fruit_name,
+  ]);
+
+  downloadPdf('game-event-lookup.pdf', 'Game Event Lookup', buildPdfTable(headers, rows));
+}
+
 function regroupGameGroups() {
   const regrouped = buildRebalancedGameEventData();
   state.gameEventGroups = regrouped.groups;
@@ -734,6 +833,8 @@ async function main() {
   els.adminApplyButton = document.getElementById('adminApplyButton');
   els.adminRegroupButton = document.getElementById('adminRegroupButton');
   els.adminExportButton = document.getElementById('adminExportButton');
+  els.adminDownloadRosterPdf = document.getElementById('adminDownloadRosterPdf');
+  els.adminDownloadGamePdf = document.getElementById('adminDownloadGamePdf');
   els.adminStatus = document.getElementById('adminStatus');
   els.gameLeaderSearch = document.getElementById('gameLeaderSearch');
   els.gameNameSearch = document.getElementById('gameNameSearch');
@@ -841,6 +942,28 @@ async function main() {
         els.adminStatus.textContent = 'Downloaded game_event_groups.json.';
       } catch (error) {
         els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to export JSON.';
+      }
+    });
+  }
+
+  if (els.adminDownloadRosterPdf) {
+    els.adminDownloadRosterPdf.addEventListener('click', () => {
+      try {
+        downloadRosterPdf();
+        els.adminStatus.textContent = 'Preparing registration form PDF...';
+      } catch (error) {
+        els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to download PDF.';
+      }
+    });
+  }
+
+  if (els.adminDownloadGamePdf) {
+    els.adminDownloadGamePdf.addEventListener('click', () => {
+      try {
+        downloadGameEventPdf();
+        els.adminStatus.textContent = 'Preparing game event lookup PDF...';
+      } catch (error) {
+        els.adminStatus.textContent = error instanceof Error ? error.message : 'Unable to download PDF.';
       }
     });
   }

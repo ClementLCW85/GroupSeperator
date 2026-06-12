@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Group roster explorer" />
     <title>联合小组 2：一人一粽，同心同行</title>
-    <link rel="stylesheet" href="styles.css?v=202606121539" />
+    <link rel="stylesheet" href="styles.css?v=202606121558" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script defer src="app.js"></script>
   </head>
   <body>
@@ -103,6 +104,16 @@
                   </div>
 
                   <p id="adminStatus" class="admin-status" aria-live="polite"></p>
+                </div>
+              </section>
+
+              <section class="admin-card">
+                <h2>Download Reports</h2>
+                <p>Export the current registration form or game event lookup as a PDF.</p>
+
+                <div class="admin-actions">
+                  <button id="adminDownloadRosterPdf" type="button">Registration Form PDF</button>
+                  <button id="adminDownloadGamePdf" type="button">Game Event Lookup PDF</button>
                 </div>
               </section>
 
