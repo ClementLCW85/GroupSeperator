@@ -1,4 +1,4 @@
-const assetVersion = '202606121612';
+const assetVersion = '202606121617';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -528,24 +528,43 @@ function escapeHtml(value) {
 }
 
 function buildPdfTable(headers, rows) {
-  const headerCells = headers.map((header) => `<th style="padding: 8px; border: 1px solid #ccc; background: #f3f4f6; text-align: left;">${escapeHtml(header)}</th>`).join('');
+  const columnStyles = headers
+    .map(
+      (_, index) => `
+        .col-${index} { width: ${index === 0 ? '6%' : `${Math.floor(94 / (headers.length - 1))}%`}; }
+      `,
+    )
+    .join('');
+
+  const headerCells = headers
+    .map((header, index) => `<div class="cell col-${index} header-cell">${escapeHtml(header)}</div>`)
+    .join('');
+
   const bodyRows = rows
     .map(
       (row) => `
-        <tr>
-          ${row.map((cell) => `<td style="padding: 8px; border: 1px solid #ccc;">${escapeHtml(cell)}</td>`).join('')}
-        </tr>
+        <div class="pdf-row">
+          ${row.map((cell, index) => `<div class="cell col-${index}">${escapeHtml(cell)}</div>`).join('')}
+        </div>
       `,
     )
     .join('');
 
   return `
-    <table style="width: 100%; border-collapse: collapse; font-family: system-ui, -apple-system, sans-serif; font-size: 12px;">
-      <thead>
-        <tr>${headerCells}</tr>
-      </thead>
-      <tbody>${bodyRows}</tbody>
-    </table>
+    <style>
+      .pdf-table { width: 100%; border: 1px solid #d1d5db; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10px; }
+      .pdf-row { display: flex; width: 100%; border-bottom: 1px solid #d1d5db; page-break-inside: avoid; break-inside: avoid; }
+      .pdf-row:last-child { border-bottom: none; }
+      .pdf-header { display: flex; width: 100%; background: #f3f4f6; font-weight: 600; border-bottom: 1px solid #d1d5db; }
+      .cell { padding: 5px 6px; box-sizing: border-box; overflow-wrap: break-word; word-break: break-word; border-right: 1px solid #e5e7eb; }
+      .cell:last-child { border-right: none; }
+      .header-cell { background: #f3f4f6; }
+      ${columnStyles}
+    </style>
+    <div class="pdf-table">
+      <div class="pdf-header">${headerCells}</div>
+      ${bodyRows}
+    </div>
   `;
 }
 
@@ -566,15 +585,9 @@ function downloadPdf(filename, title, htmlContent) {
       <head>
         <meta charset="utf-8" />
         <style>
-          body { margin: 0; padding: 24px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; background: #ffffff; }
-          h1 { font-size: 18px; margin-bottom: 16px; }
-          p.meta { font-size: 12px; color: #6b7280; margin-bottom: 16px; }
-          table { width: 100%; border-collapse: collapse; font-size: 11px; }
-          th, td { padding: 6px 8px; border: 1px solid #d1d5db; text-align: left; vertical-align: top; }
-          th { background: #f3f4f6; font-weight: 600; }
-          tr:nth-child(even) { background: #f9fafb; }
-          tr { page-break-inside: avoid; break-inside: avoid; }
-          thead { display: table-header-group; }
+          body { margin: 0; padding: 20px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; background: #ffffff; }
+          h1 { font-size: 18px; margin-bottom: 12px; }
+          p.meta { font-size: 11px; color: #6b7280; margin-bottom: 14px; }
         </style>
       </head>
       <body>
@@ -592,7 +605,7 @@ function downloadPdf(filename, title, htmlContent) {
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-    pagebreak: { mode: ['css', 'legacy'] },
+    pagebreak: { mode: 'avoid-all' },
   };
 
   return html2pdf()
