@@ -1,4 +1,4 @@
-const assetVersion = '202606121537';
+const assetVersion = '202606121539';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -641,10 +641,7 @@ function renderGameResults(filtered) {
           </div>
           <div class="meta">
             <div><strong>Game group:</strong> ${entry.is_game_master ? 'Game master' : formatGameGroupName(entry.game_event_group_name)}</div>
-            <div class="fruit-line">
-              <strong>Game group icon:</strong>
-              ${entry.is_game_master || !entry.game_event_group_fruit_asset ? 'N/A' : `<img class="fruit-icon-inline" src="${entry.game_event_group_fruit_asset}" alt="${entry.game_event_group_fruit_name}" /> ${entry.game_event_group_fruit_name}`}
-            </div>
+            <div><strong>Game group icon:</strong> ${entry.is_game_master || !entry.game_event_group_fruit_asset ? 'N/A' : entry.game_event_group_fruit_name}</div>
             <div><strong>Game leader:</strong> ${entry.is_game_master ? 'N/A' : formatName(entry.game_event_group_leader_name_english, entry.game_event_group_leader_name_chinese) || entry.small_group_leader || ''}</div>
             <div><strong>Member:</strong> ${entry.name_english || entry.name_chinese || ''}</div>
             <div><strong>Age group:</strong> ${entry.age_group || ''}</div>
