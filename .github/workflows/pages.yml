@@ -30,6 +30,7 @@ jobs:
           cp app.js public/
           cp "联合小组 2 - Full Name List (updated).json" public/
           cp game_event_groups.json public/
+          cp -r assets public/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

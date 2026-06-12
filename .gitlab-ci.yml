@@ -6,6 +6,7 @@ pages:
     - cp styles.css public/
     - cp app.js public/
     - cp "联合小组 2 - Full Name List (updated).json" public/
+    - cp -r assets public/
   artifacts:
     paths:
       - public
