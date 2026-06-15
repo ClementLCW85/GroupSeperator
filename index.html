@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Group roster explorer" />
     <title>联合小组 2：一人一粽，同心同行</title>
-    <link rel="stylesheet" href="styles.css?v=202606151036" />
+    <link rel="stylesheet" href="styles.css?v=202606151045" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script defer src="app.js"></script>
   </head>
   <body>
@@ -113,8 +114,15 @@
 
                 <div class="admin-actions">
                   <button id="adminDownloadRosterPdf" type="button">Registration Form PDF</button>
+                  <button id="adminDownloadRosterExcel" type="button">Registration Form Excel</button>
+                </div>
+                <div class="admin-actions">
                   <button id="adminDownloadGamePdfByLeader" type="button">Game Event PDF (by Cell Group Leader)</button>
+                  <button id="adminDownloadGameExcelByLeader" type="button">Game Event Excel (by Cell Group Leader)</button>
+                </div>
+                <div class="admin-actions">
                   <button id="adminDownloadGamePdfByGroup" type="button">Game Event PDF (by Game Group)</button>
+                  <button id="adminDownloadGameExcelByGroup" type="button">Game Event Excel (by Game Group)</button>
                 </div>
               </section>
 
