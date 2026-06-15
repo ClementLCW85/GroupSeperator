@@ -2935,6 +2935,16 @@
       "age_group": "Young Adult",
       "game_master": true,
       "game_master_label": "GM"
+    },
+    {
+      "number": 167,
+      "name_chinese": "",
+      "name_english": "Kenneth",
+      "small_group_leader": "",
+      "gender": "male",
+      "age_group": "Young Adult",
+      "game_master": true,
+      "game_master_label": "GM"
     }
   ]
 }
