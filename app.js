@@ -1,4 +1,4 @@
-const assetVersion = '202606151033';
+const assetVersion = '202606151036';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -527,7 +527,7 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function buildPdfTable(headers, rows) {
+function buildPdfTable(headers, rows, highlightIndexes = []) {
   const columnStyles = headers
     .map(
       (_, index) => `
@@ -540,13 +540,17 @@ function buildPdfTable(headers, rows) {
     .map((header, index) => `<div class="cell col-${index} header-cell">${escapeHtml(header)}</div>`)
     .join('');
 
+  const highlightSet = new Set(highlightIndexes);
   const bodyRows = rows
     .map(
-      (row) => `
-        <div class="pdf-row">
-          ${row.map((cell, index) => `<div class="cell col-${index}">${escapeHtml(cell)}</div>`).join('')}
-        </div>
-      `,
+      (row, rowIndex) => {
+        const highlightStyle = highlightSet.has(rowIndex) ? 'background: #fef9c3;' : '';
+        return `
+          <div class="pdf-row" style="${highlightStyle}">
+            ${row.map((cell, index) => `<div class="cell col-${index}" style="${highlightStyle}">${escapeHtml(cell)}</div>`).join('')}
+          </div>
+        `;
+      },
     )
     .join('');
 
@@ -669,10 +673,14 @@ function downloadGameEventPdf(sortBy = 'group') {
     entry.is_game_master ? 'N/A' : entry.game_event_group_fruit_name,
   ]);
 
+  const highlightIndexes = entries
+    .map((entry, index) => (entry.game_event_group_is_leader ? index : -1))
+    .filter((index) => index >= 0);
+
   const filename = sortBy === 'leader' ? 'game-event-by-cell-group-leader.pdf' : 'game-event-by-game-group.pdf';
   const title = sortBy === 'leader' ? 'Game Event Lookup (by Cell Group Leader)' : 'Game Event Lookup (by Game Group)';
 
-  downloadPdf(filename, title, buildPdfTable(headers, rows));
+  downloadPdf(filename, title, buildPdfTable(headers, rows, highlightIndexes));
 }
 
 function regroupGameGroups() {
