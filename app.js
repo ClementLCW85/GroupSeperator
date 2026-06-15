@@ -1,4 +1,4 @@
-const assetVersion = '202606151018';
+const assetVersion = '202606151024';
 const dataUrl = `联合小组 2 - Full Name List (updated).json?v=${assetVersion}`;
 const gameEventDataUrl = `game_event_groups.json?v=${assetVersion}`;
 const adminPassword = '7212';
@@ -787,6 +787,7 @@ function renderGameResults(filtered) {
             <div><strong>Member:</strong> ${entry.name_english || entry.name_chinese || ''}</div>
             <div><strong>Age group:</strong> ${entry.age_group || ''}</div>
             <div><strong>Gender:</strong> ${entry.gender || ''}</div>
+            <div><strong>ID:</strong> ${entry.number || ''}</div>
           </div>
         </article>
       `,
